@@ -1,15 +1,30 @@
 "use client"
 
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react"
+import { logOut } from "./actions";
 
 
 export const HomePage = ({vinyls}: any) => {
     const [allVinyls, setAllVinyls] = useState([]);
     const [newVinyl, setNewVinyl] = useState({ album_name: '', artist_name: '', album_art_url: '' });
     const ref = useRef<HTMLFormElement>(null);
-console.log(allVinyls, 'yo')
+    const [useClient, setUseClient] = useState(false)
+    const router = useRouter();
     const [randomVinyl, setRandomVinyl] = useState<any>(null);
-  
+  useEffect(() => {
+    setUseClient(true)
+  }, [])
+
+
+    const handleLogout = async () => {
+     const response = await logOut()
+     console.log(response, ' the opne')
+     if (response || !response) {
+      return router.push("/")
+     }
+    };
+
     const handleChange = (e: any) => {
         setNewVinyl({ ...newVinyl, [e.target.name]: e.target.value });
       };
@@ -73,6 +88,11 @@ console.log(allVinyls, 'yo')
     return (
         <div className="w-full max-w-4xl mx-auto">
       <header className="text-center mb-12">
+      <section className="mb-8 text-center">
+      <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-lg transition duration-300 ease-in-out">
+        Logout
+      </button>
+    </section>
         <h1 className="text-5xl font-bold text-green-500 mb-6">Vinyl Records</h1>
         <p className="text-lg text-gray-300">Discover the world of vinyl music</p>
       </header>
@@ -104,19 +124,24 @@ console.log(allVinyls, 'yo')
       {/* Vinyl Display Section */}
       <h2 className="text-2xl font-bold text-green-400 mb-2 text-center border-t-2 border-green-500 pt-4">Vinyl Collection</h2>
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {allVinyls.map((vinyl: any, index: any) => (
-          <div key={index} className="bg-gray-800 rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-green-400 mb-2">{vinyl.album_name}</h2>
-            <p className="text-gray-400 mb-4">Artist: {vinyl.artist_name}</p>
-            {vinyl.album_art_url && <img src={vinyl.album_art_url} alt={vinyl.album_name} className="w-full h-auto rounded" />}
-            <button
-        onClick={() => handleDelete(vinyl.id)}
-        className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
-      >
-        Delete Vinyl
-      </button>
-          </div>
-        ))}
+        {useClient && (
+          <>
+          {allVinyls.map((vinyl: any, index: any) => (
+            <div key={index} className="bg-gray-800 rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-green-400 mb-2">{vinyl.album_name}</h2>
+              <p className="text-gray-400 mb-4">Artist: {vinyl.artist_name}</p>
+              {vinyl.album_art_url && <img src={vinyl.album_art_url} alt={vinyl.album_name} className="w-full h-auto rounded" />}
+              <button
+          onClick={() => handleDelete(vinyl.id)}
+          className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
+        >
+          Delete Vinyl
+        </button>
+            </div>
+          ))}
+          </>
+
+        )}
       </section>
     </div>
   
